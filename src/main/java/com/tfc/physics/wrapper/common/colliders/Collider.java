@@ -47,12 +47,12 @@ public abstract class Collider implements ICollider {
 	
 	@Override
 	public void setX(double x) {
-		supplier.get().x = (float) x;
+		positionSetter.setX((float) x);
 	}
 	
 	@Override
 	public void setY(double y) {
-		supplier.get().y = (float) y;
+		positionSetter.setY((float) y);
 	}
 	
 	@Override
@@ -174,5 +174,17 @@ public abstract class Collider implements ICollider {
 	@Override
 	public void addAngularForce(double amt) {
 		angularForceApplicator.accept(amt);
+	}
+	
+	Consumer<Double> gravityScaleSetter;
+	
+	@Override
+	public void setGravityScale(double i) {
+		gravityScaleSetter.accept(i);
+	}
+	
+	@Override
+	public void setGravityScaleSetter(Consumer<Double> setter) {
+		gravityScaleSetter = setter;
 	}
 }

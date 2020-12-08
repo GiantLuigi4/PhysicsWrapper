@@ -14,6 +14,10 @@ import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
 import org.jbox2d.dynamics.joints.Joint;
 import org.jbox2d.dynamics.joints.JointDef;
+import org.jbox2d.testbed.framework.TestbedFrame;
+import org.jbox2d.testbed.framework.TestbedMain;
+import org.jbox2d.testbed.framework.TestbedModel;
+import org.jbox2d.testbed.framework.TestbedSettings;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,6 +27,9 @@ public class B2DWorld extends World implements IPhysicsWorld {
 	
 	public B2DWorld(Vec2 gravity) {
 		super(gravity);
+		this.setWarmStarting(false);
+		this.setSubStepping(true);
+		this.setContinuousPhysics(false);
 	}
 	
 	@Override
@@ -78,6 +85,8 @@ public class B2DWorld extends World implements IPhysicsWorld {
 		bodyDef.gravityScale = collider.isImmovable() ? 0 : 1;
 		bodyDef.linearDamping = collider.getLinearDamping();
 		
+		bodyDef.bullet = true;
+		
 		Body body = this.createBody(bodyDef);
 		FixtureDef fd = new FixtureDef();
 		fd.shape = shape;
@@ -87,11 +96,11 @@ public class B2DWorld extends World implements IPhysicsWorld {
 		
 		collider.setPositionSupplier(() -> new Vector2(body.getPosition().x, body.getPosition().y));
 		collider.setPositionSetter(new PositionSetter(
-				(newX) -> body.getPosition().set(newX.floatValue(), body.getPosition().y),
-				(newY) -> body.getPosition().set(body.getPosition().x, newY.floatValue())
+				(newX) -> body.setTransform(new Vec2(newX.floatValue(),body.getPosition().y),body.getAngle()),
+				(newY) -> body.setTransform(new Vec2(body.getPosition().x, newY.floatValue()),body.getAngle())
 		));
 		collider.setVelocityVal(new Vec2Wrapper(
-				() -> collider.getPositionSupplier().get(),
+				() -> new Vector2(body.getLinearVelocity().x,body.getLinearVelocity().y),
 				(newX) -> body.setLinearVelocity(new Vec2(newX.floatValue(), body.getLinearVelocity().y)),
 				(newY) -> body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, newY.floatValue()))
 		));
@@ -101,6 +110,8 @@ public class B2DWorld extends World implements IPhysicsWorld {
 		
 		collider.setAngleGetter(() -> (double) body.getAngle());
 		collider.setAngleSetter((val) -> body.setTransform(body.getWorldCenter(), val.floatValue()));
+		
+		collider.setGravityScaleSetter((value)->body.setGravityScale(value.floatValue()));
 		
 		colliders.put(collider, body);
 	}
@@ -112,6 +123,6 @@ public class B2DWorld extends World implements IPhysicsWorld {
 	
 	@Override
 	public void tick() {
-		step(60, 3, 8);
+		step(1, 1, 8);
 	}
 }

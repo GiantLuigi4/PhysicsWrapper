@@ -17,15 +17,11 @@ public class Vec2Wrapper {
 	}
 	
 	public void setVal(double x, double y) {
-		val.get().x = (float) x;
-		val.get().y = (float) y;
 		xSetter.accept(x);
 		ySetter.accept(y);
 	}
 	
 	public void addVal(double x, double y) {
-		val.get().x += (float) x;
-		val.get().y += (float) y;
 		xSetter.accept(val.get().x+x);
 		ySetter.accept(val.get().y+y);
 	}

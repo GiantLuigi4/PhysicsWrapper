@@ -10,6 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class PhysicWrapperTest extends JComponent implements KeyListener {
 	WrapperWorld world;
@@ -26,10 +27,17 @@ public class PhysicWrapperTest extends JComponent implements KeyListener {
 		
 		frame.setSize(1000, 1000);
 		
-		wrapperTest.world = new WrapperWorld(new Vector2(0, 1));
+		wrapperTest.world = new WrapperWorld(new Vector2(0, 0.1f));
 		BoxCollider player = new BoxCollider(10, 10);
 		wrapperTest.world.addCollider(player);
-		wrapperTest.world.addCollider(new BoxCollider(400, 10).rotate(0).move(0, 100).setImmovable());
+		wrapperTest.world.addCollider(player);
+//		Random random = new Random();
+//		for (int i=0; i <= 10; i++) {
+//			wrapperTest.world.addCollider(new BoxCollider(random.nextInt(90)+10, random.nextInt(90)+10).rotate(0)
+//					.move(((random.nextBoolean()?-1:1)*random.nextInt(100))*100, ((random.nextBoolean()?-1:1)*random.nextInt(100))).setImmovable());
+//		}
+		wrapperTest.world.addCollider(new BoxCollider(400,10).rotate(0)
+				.move(0,400).setImmovable());
 		
 		frame.setVisible(true);
 		
@@ -47,15 +55,11 @@ public class PhysicWrapperTest extends JComponent implements KeyListener {
 			
 			player.setAngle(0);
 			
-			if (wrapperTest.isKeyPressed(68))
-				player.setVelocity(10,0);
+			if (wrapperTest.isKeyPressed(87)) player.addVelocity(0,-0.5);
+			if (wrapperTest.isKeyPressed(68)) player.addVelocity(0.1,0);
+			if (wrapperTest.isKeyPressed(65)) player.addVelocity(-0.1,0);
 			
-			if (wrapperTest.isKeyPressed(65))
-				player.setVelocity(-10,0);
-			
-//			player.getPositionSetter().setY(-100);
-			
-			Thread.sleep(10);
+			Thread.sleep(5);
 		} catch (Throwable ignored) {
 		}
 	}
@@ -72,7 +76,7 @@ public class PhysicWrapperTest extends JComponent implements KeyListener {
 		Graphics2D g2d = (Graphics2D) g;
 		AffineTransform transform = g2d.getTransform();
 		g2d.translate(frame.getWidth() / 2f, frame.getHeight() / 2f);
-		g2d.scale(0.5,0.5);
+		g2d.scale(1,1);
 		world.getColliders().forEach(collider -> {
 			AffineTransform transform1 = g2d.getTransform();
 			collider.draw(g2d);

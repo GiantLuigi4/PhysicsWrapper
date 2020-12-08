@@ -49,18 +49,21 @@ public interface ICollider {
 	void setAngle(double angle);
 	
 	default float getDensity() {
-		return 5f;
+		return 1f;
 	}
 	
 	default float getLinearDamping() {
-		return 0f;
+		return 0.1f;
 	}
 	
 	default float getFriction() {
-		return 0.1f;
+		return 0.25f;
 	}
 	
 	default ArrayList<Vector2> setShape() {
 		return new ArrayList<>();
 	}
+	
+	void setGravityScale(double i);
+	void setGravityScaleSetter(Consumer<Double> setter);
 }
