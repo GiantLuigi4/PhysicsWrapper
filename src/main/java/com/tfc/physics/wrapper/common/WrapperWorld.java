@@ -4,6 +4,7 @@ import com.tfc.physics.wrapper.Physics;
 import com.tfc.physics.wrapper.box2d.B2DWorld;
 import com.tfc.physics.wrapper.common.backend.interfaces.ICollider;
 import com.tfc.physics.wrapper.common.backend.interfaces.IPhysicsWorld;
+import com.tfc.physics.wrapper.common.joint.Joint;
 import org.jbox2d.common.Vec2;
 
 import java.util.Collection;
@@ -29,5 +30,10 @@ public class WrapperWorld implements IPhysicsWorld {
 	@Override
 	public void tick() {
 		world.tick();
+	}
+	
+	@Override
+	public void addJoint(Joint joint) {
+		world.addJoint(joint);
 	}
 }

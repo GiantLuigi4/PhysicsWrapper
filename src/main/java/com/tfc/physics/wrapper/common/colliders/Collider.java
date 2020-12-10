@@ -4,6 +4,7 @@ import com.tfc.physics.wrapper.common.backend.PositionSetter;
 import com.tfc.physics.wrapper.common.Vector2;
 import com.tfc.physics.wrapper.common.backend.interfaces.ICollider;
 import com.tfc.physics.wrapper.common.backend.Vec2Wrapper;
+import com.tfc.physics.wrapper.common.joint.Joint;
 
 import java.awt.*;
 import java.util.function.Consumer;

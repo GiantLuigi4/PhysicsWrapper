@@ -6,30 +6,29 @@ import com.tfc.physics.wrapper.common.backend.Vec2Wrapper;
 import com.tfc.physics.wrapper.common.backend.interfaces.ICollider;
 import com.tfc.physics.wrapper.common.colliders.BoxCollider;
 import com.tfc.physics.wrapper.common.backend.interfaces.IPhysicsWorld;
+import com.tfc.physics.wrapper.common.colliders.CircleCollider;
 import org.jbox2d.callbacks.ContactFilter;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.callbacks.DestructionListener;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
-import org.jbox2d.dynamics.joints.Joint;
-import org.jbox2d.dynamics.joints.JointDef;
-import org.jbox2d.testbed.framework.TestbedFrame;
-import org.jbox2d.testbed.framework.TestbedMain;
-import org.jbox2d.testbed.framework.TestbedModel;
-import org.jbox2d.testbed.framework.TestbedSettings;
+import org.jbox2d.dynamics.joints.*;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
 public class B2DWorld extends World implements IPhysicsWorld {
 	public HashMap<ICollider, Body> colliders = new HashMap<>();
+	public HashMap<com.tfc.physics.wrapper.common.joint.Joint, Joint> joints = new HashMap<>();
 	
 	public B2DWorld(Vec2 gravity) {
 		super(gravity);
 		this.setWarmStarting(false);
-		this.setSubStepping(true);
+		this.setSubStepping(false);
 		this.setContinuousPhysics(false);
+		setAllowSleep(true);
 	}
 	
 	@Override
@@ -71,9 +70,6 @@ public class B2DWorld extends World implements IPhysicsWorld {
 	public void addCollider(ICollider collider) {
 		PolygonShape shape = new PolygonShape();
 		
-		if (collider instanceof BoxCollider)
-			shape.setAsBox((float) ((BoxCollider) collider).width, (float) ((BoxCollider) collider).height);
-		
 		BodyDef bodyDef = new BodyDef();
 		
 		if (collider.isImmovable()) bodyDef.type = BodyType.STATIC;
@@ -85,14 +81,49 @@ public class B2DWorld extends World implements IPhysicsWorld {
 		bodyDef.gravityScale = collider.isImmovable() ? 0 : 1;
 		bodyDef.linearDamping = collider.getLinearDamping();
 		
-		bodyDef.bullet = true;
-		
 		Body body = this.createBody(bodyDef);
 		FixtureDef fd = new FixtureDef();
-		fd.shape = shape;
-		fd.density = collider.getDensity();
-		fd.friction = collider.getFriction();
-		body.createFixture(fd);
+		
+		if (collider instanceof BoxCollider) {
+			shape.setAsBox((float) ((BoxCollider) collider).width, (float) ((BoxCollider) collider).height);
+			fd.shape = shape;
+			fd.density = collider.getDensity();
+			fd.friction = collider.getFriction();
+			body.createFixture(fd);
+		} else if (collider instanceof CircleCollider) {
+			ArrayList<Vector2> vector2s = ((CircleCollider) collider).createShape();
+			Vec2[] vertices = new Vec2[8];
+			int amt = 0;
+			boolean isFirstDef = true;
+			for (int i = 0; i < vector2s.size(); i++) {
+				Vector2 vec = vector2s.get(i);
+				vertices[amt] = new Vec2(vec.x, vec.y);
+				amt++;
+				if (amt == 8) {
+					shape.set(vertices, vertices.length);
+					amt = 0;
+					fd.shape = shape;
+					fd.density = (isFirstDef?collider.getDensity():0.5f);
+					fd.friction = collider.getFriction();
+					body.createFixture(fd);
+					vertices = new Vec2[8];
+					isFirstDef = false;
+				}
+			}
+			
+			if (amt != 0) {
+				shape.set(vertices, amt);
+				fd.shape = shape;
+				fd.density = collider.getDensity();
+				fd.friction = collider.getFriction();
+				body.createFixture(fd);
+			}
+		} else {
+			fd.shape = shape;
+			fd.density = collider.getDensity();
+			fd.friction = collider.getFriction();
+			body.createFixture(fd);
+		}
 		
 		collider.setPositionSupplier(() -> new Vector2(body.getPosition().x, body.getPosition().y));
 		collider.setPositionSetter(new PositionSetter(
@@ -124,5 +155,17 @@ public class B2DWorld extends World implements IPhysicsWorld {
 	@Override
 	public void tick() {
 		step(1, 1, 8);
+	}
+	
+	@Override
+	public void addJoint(com.tfc.physics.wrapper.common.joint.Joint joint) {
+		DistanceJointDef def = new DistanceJointDef();
+		def.bodyA = colliders.get(joint.first);
+		def.bodyB = colliders.get(joint.second);
+		def.dampingRatio = joint.dampening;
+		def.length = joint.length;
+		def.frequencyHz = 10.0f;
+		
+		joints.put(joint,super.createJoint(def));
 	}
 }

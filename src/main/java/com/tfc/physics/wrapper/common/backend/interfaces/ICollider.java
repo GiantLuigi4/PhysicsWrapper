@@ -3,6 +3,7 @@ package com.tfc.physics.wrapper.common.backend.interfaces;
 import com.tfc.physics.wrapper.common.backend.PositionSetter;
 import com.tfc.physics.wrapper.common.Vector2;
 import com.tfc.physics.wrapper.common.backend.Vec2Wrapper;
+import com.tfc.physics.wrapper.common.joint.Joint;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -66,4 +67,8 @@ public interface ICollider {
 	
 	void setGravityScale(double i);
 	void setGravityScaleSetter(Consumer<Double> setter);
+	
+	default Joint createJoint(ICollider other) {
+		return new Joint(this,other);
+	}
 }

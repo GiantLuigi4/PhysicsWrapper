@@ -15,7 +15,7 @@ public class BoxCollider extends Collider {
 	public void draw(Graphics2D g2d) {
 		AffineTransform transform = g2d.getTransform();
 		g2d.translate(this.getX(),this.getY());
-		g2d.rotate(Math.toRadians(this.getAngle()));
+		g2d.rotate((this.getAngle()));
 		g2d.drawRect(
 				-this.width, -this.height,
 				this.width * 2, this.height * 2
