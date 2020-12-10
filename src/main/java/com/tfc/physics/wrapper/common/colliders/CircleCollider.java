@@ -71,16 +71,16 @@ public class CircleCollider extends Collider implements ICustomShapeCollider {
 ////		g2d.rotate(Math.toRadians(this.getAngle()));
 ////		g2d.scale(width,height);
 ////		g2d.translate(-30,-0);
-//		g2d.drawArc((int)-width,(int)-width,(int)width*2,(int)height*2,0,360);
+		g2d.drawArc((int)-width,(int)-width,(int)width*2,(int)height*2,0,360);
 		
-		for (int i = 0; i < points.size() - 1; i++) {
-			Vector2 vec1 = points.get(i);
-			Vector2 vec2 = points.get(i + 1);
-			g2d.drawLine(
-					(int) vec1.x, (int) vec1.y,
-					(int) vec2.x, (int) vec2.y
-			);
-		}
+//		for (int i = 0; i < points.size() - 1; i++) {
+//			Vector2 vec1 = points.get(i);
+//			Vector2 vec2 = points.get(i + 1);
+//			g2d.drawLine(
+//					(int) vec1.x, (int) vec1.y,
+//					(int) vec2.x, (int) vec2.y
+//			);
+//		}
 		
 		g2d.setTransform(transform);
 	}
