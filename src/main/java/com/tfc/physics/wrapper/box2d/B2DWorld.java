@@ -103,7 +103,8 @@ public class B2DWorld extends World implements IPhysicsWorld {
 					shape.set(vertices, vertices.length);
 					amt = 0;
 					fd.shape = shape;
-					fd.density = (isFirstDef?collider.getDensity():0.5f);
+//					fd.density = (isFirstDef?collider.getDensity():0.5f);
+					fd.density = (collider.getDensity());
 					fd.friction = collider.getFriction();
 					body.createFixture(fd);
 					vertices = new Vec2[8];
@@ -159,13 +160,39 @@ public class B2DWorld extends World implements IPhysicsWorld {
 	
 	@Override
 	public void addJoint(com.tfc.physics.wrapper.common.joint.Joint joint) {
-		DistanceJointDef def = new DistanceJointDef();
+		JointDef def;
+		switch (joint.descriptor.type) {
+			case DISTANCE:
+				DistanceJointDef workingDefDist = new DistanceJointDef();
+				workingDefDist.dampingRatio = joint.descriptor.dampening;
+				workingDefDist.length = joint.descriptor.length;
+				workingDefDist.frequencyHz = 10.0f;
+				def = workingDefDist;
+				break;
+			case WHEEL:
+				WheelJointDef workingDefWheel = new WheelJointDef();
+				workingDefWheel.dampingRatio = joint.descriptor.dampening;
+				workingDefWheel.enableMotor = joint.descriptor.motor.isOn;
+				workingDefWheel.maxMotorTorque = joint.descriptor.motor.motorTorque;
+				workingDefWheel.motorSpeed = joint.descriptor.motor.motorSpeed;
+				workingDefWheel.frequencyHz = 10.0f;
+				def = workingDefWheel;
+				break;
+			case PRISMATIC:
+				PrismaticJointDef workingDefPrismatic = new PrismaticJointDef();
+				workingDefPrismatic.enableMotor = joint.descriptor.motor.isOn;
+				workingDefPrismatic.motorSpeed = joint.descriptor.motor.motorSpeed;
+				workingDefPrismatic.maxMotorForce = joint.descriptor.motor.motorTorque;
+				workingDefPrismatic.lowerTranslation = joint.descriptor.lowerTranslation;
+				workingDefPrismatic.upperTranslation = joint.descriptor.upperTranslation;
+				workingDefPrismatic.enableLimit = joint.descriptor.enableLimit;
+			default:
+				def = new JointDef();
+				break;
+		}
+		
 		def.bodyA = colliders.get(joint.first);
 		def.bodyB = colliders.get(joint.second);
-		def.dampingRatio = joint.dampening;
-		def.length = joint.length;
-		def.frequencyHz = 10.0f;
-		
 		joints.put(joint,super.createJoint(def));
 	}
 }

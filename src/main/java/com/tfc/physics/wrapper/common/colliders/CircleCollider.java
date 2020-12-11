@@ -17,37 +17,51 @@ public class CircleCollider extends Collider implements ICustomShapeCollider {
 	}
 	
 	public CircleCollider(double width, double height, float resolution) {
+		this(width,height,resolution,false);
+	}
+	
+	public CircleCollider(double width, double height, float resolution, boolean outerOnly) {
 		this.width = width;
 		this.height = height;
 		
 		for (int i = 0; i < 360/ resolution; i+=1) {
-			double a = Math.toRadians((i * resolution) + (180));
-			double v = Math.cos(Math.toRadians(i * resolution)) * width;
-			double v1 = Math.sin(Math.toRadians(i * resolution)) * height;
-			points.add(
-					new Vector2(
-							(float) v,
-							(float) v1
-					)
-			);
-			points.add(
-					new Vector2(
-							(float) (Math.cos(a) * width),
-							(float) (Math.sin(a) * height)
-					)
-			);
-			points.add(
-					new Vector2(
-							(float) v,
-							(float) v1
-					)
-			);
-			points.add(
-					new Vector2(
-							(float) v,
-							(float) v1
-					)
-			);
+			if (outerOnly) {
+				double a = Math.toRadians((i * resolution));
+				points.add(
+						new Vector2(
+								(float) (Math.cos(a) * width),
+								(float) (Math.sin(a) * height)
+						)
+				);
+			} else {
+				double a = Math.toRadians((i * resolution) + (180));
+				double v = Math.cos(Math.toRadians(i * resolution)) * width;
+				double v1 = Math.sin(Math.toRadians(i * resolution)) * height;
+				points.add(
+						new Vector2(
+								(float) v,
+								(float) v1
+						)
+				);
+				points.add(
+						new Vector2(
+								(float) (Math.cos(a) * width),
+								(float) (Math.sin(a) * height)
+						)
+				);
+				points.add(
+						new Vector2(
+								(float) v,
+								(float) v1
+						)
+				);
+				points.add(
+						new Vector2(
+								(float) v,
+								(float) v1
+						)
+				);
+			}
 		}
 	}
 	
@@ -68,7 +82,7 @@ public class CircleCollider extends Collider implements ICustomShapeCollider {
 	public void draw(Graphics2D g2d) {
 		AffineTransform transform = g2d.getTransform();
 		g2d.translate(this.getX(),this.getY());
-////		g2d.rotate(Math.toRadians(this.getAngle()));
+		g2d.rotate(Math.toRadians(this.getAngle()));
 ////		g2d.scale(width,height);
 ////		g2d.translate(-30,-0);
 		g2d.drawArc((int)-width,(int)-width,(int)width*2,(int)height*2,0,360);

@@ -39,23 +39,31 @@ public class PhysicWrapperTest extends JComponent implements KeyListener {
 		frame.setSize(1000, 1000);
 		
 		wrapperTest.world = new WrapperWorld(new Vector2(0, 0.1f));
-		Collider player = new CircleCollider(10, 10,1);
+		Collider player = new CircleCollider(10,10,1) {
+			@Override
+			public void draw(Graphics2D g2d) {
+				Color c = g2d.getColor();
+				g2d.setColor(Color.RED);
+				super.draw(g2d);
+				g2d.setColor(c);
+			}
+		};
 		middle = player;
 		middle.move(200,100);
 		
 		wrapperTest.world.addCollider(player);
 		
-		wrapperTest.world.addCollider(new CircleCollider(50,50,1).move(0,60));
-		wrapperTest.world.addCollider(new BoxCollider(10,10).move(-105,60));
-		wrapperTest.world.addCollider(new BoxCollider(10,20).move(-95,60));
-		wrapperTest.world.addCollider(new BoxCollider(10,30).move(-85,60));
-		wrapperTest.world.addCollider(new BoxCollider(10,40).move(-75,60));
+//		wrapperTest.world.addCollider(new CircleCollider(50,50,1).move(0,60));
+//		wrapperTest.world.addCollider(new BoxCollider(10,10).move(-105,60));
+//		wrapperTest.world.addCollider(new BoxCollider(10,20).move(-95,60));
+//		wrapperTest.world.addCollider(new BoxCollider(10,30).move(-85,60));
+//		wrapperTest.world.addCollider(new BoxCollider(10,40).move(-75,60));
 		
 		
 //		wrapperTest.world.addCollider(middle);
 		
 		for (int i=0;i<=32;i++) {
-			ICollider collider2 = new CircleCollider(10,10) {
+			ICollider collider2 = new CircleCollider(10,10,1,true) {
 				@Override
 				public float getFriction() {
 					return 128;
@@ -70,19 +78,27 @@ public class PhysicWrapperTest extends JComponent implements KeyListener {
 				public float getLinearDamping() {
 					return 0.01f;
 				}
+				
+				@Override
+				public void draw(Graphics2D g2d) {
+					Color c = g2d.getColor();
+					g2d.setColor(Color.ORANGE);
+					super.draw(g2d);
+					g2d.setColor(c);
+				}
 			}.move(200+(int)((Math.cos(Math.toRadians(i*12)))*110),100+(int)((Math.sin(Math.toRadians(i*12)))*110));
 			colliders.add(collider2);
 			wrapperTest.world.addCollider(collider2);
 			if (i>=1) {
 				ICollider collider1 = colliders.get(colliders.size()-2);
 				Joint joint = new Joint(collider1,collider2);
-				joint.dampening = 256*2;
+				joint.descriptor.dampening = 256*2;
 				wrapperTest.world.addJoint(joint);
 			}
 			
 			Joint midJoint = new Joint(collider2,middle);
-			midJoint.dampening = 256*32;
-			midJoint.length = 116;
+			midJoint.descriptor.dampening = 256*32;
+			midJoint.descriptor.length = 116;
 			wrapperTest.world.addJoint(midJoint);
 		}
 		{
@@ -98,8 +114,8 @@ public class PhysicWrapperTest extends JComponent implements KeyListener {
 			collider1.setGravityScale(0);
 			
 			Joint parallelJoint = new Joint(collider2,collider1);
-			parallelJoint.dampening = 256*256;
-			parallelJoint.length = 120*2f;
+			parallelJoint.descriptor.dampening = 256*256;
+			parallelJoint.descriptor.length = 120*2f;
 			wrapperTest.world.addJoint(parallelJoint);
 		}
 		
@@ -112,6 +128,32 @@ public class PhysicWrapperTest extends JComponent implements KeyListener {
 //		wrapperTest.world.addCollider(new RampCollider().move(0,0));
 		wrapperTest.world.addCollider(new BoxCollider(400,10).rotate(0)
 				.move(0,400).setImmovable());
+		
+		wrapperTest.world.addCollider(new BoxCollider(1000,10).rotate(0)
+				.move(410,-100).rotate(Math.toRadians(90)).setImmovable());
+		wrapperTest.world.addCollider(new BoxCollider(1000,10).rotate(0)
+				.move(-410,-100).rotate(Math.toRadians(90)).setImmovable());
+		
+		for (int i=0; i<10;i++) {
+			ICollider collider = new CircleCollider(10,10) {
+				@Override
+				public float getDensity() {
+					return 0;
+				}
+				
+				@Override
+				public float getLinearDamping() {
+					return 0;
+				}
+				
+				@Override
+				public float getFriction() {
+					return 0;
+				}
+			}.move((int)player.getX(),(int)player.getY());
+			wrapperTest.world.addCollider(collider);
+			collider.setGravityScale(0);
+		}
 		
 		frame.setVisible(true);
 		
@@ -135,14 +177,21 @@ public class PhysicWrapperTest extends JComponent implements KeyListener {
 			}
 			
 			isOnGround = true;
-
+			
+//			if (new Random().nextBoolean() && new Random().nextBoolean() && new Random().nextBoolean()) {
+//				wrapperTest.world.addCollider(new CircleCollider(10,10).move( (new Random().nextBoolean()?-1:1)*new Random().nextInt(300),-500));
+//			}
+			
 //			System.out.println(wrapperTest.lastPlayerY);
 //			System.out.println(player.getPositionSupplier().get().y);
 			
 			wrapperTest.lastPlayerY = player.getPositionSupplier().get().y;
 			
+			double yStrength = 1;
+			double xStrength = 1;
+			
 			if (wrapperTest.isKeyPressed(87) && (isOnGround || (wrapperTest.isJumping && wrapperTest.jumpTime <= 20 && wrapperTest.jumpTime >= 0))) {
-				player.addVelocity(0, -0.5);
+				player.addVelocity(0, -yStrength);
 				wrapperTest.isJumping = true;
 				wrapperTest.jumpTime++;
 			} else {
@@ -153,10 +202,12 @@ public class PhysicWrapperTest extends JComponent implements KeyListener {
 					wrapperTest.jumpTime++;
 				}
 			}
-			if (wrapperTest.isKeyPressed(68)) player.addVelocity(0.1, 0);
-			if (wrapperTest.isKeyPressed(65)) player.addVelocity(-0.1, 0);
-			
-			boolean isFirst = true;
+			if (wrapperTest.isKeyPressed(68)) player.addVelocity(xStrength, 0);
+			if (wrapperTest.isKeyPressed(65)) player.addVelocity(-xStrength, 0);
+			if (wrapperTest.isKeyPressed(83) && (isOnGround || (wrapperTest.isJumping && wrapperTest.jumpTime <= 20 && wrapperTest.jumpTime >= 0)))
+				player.addVelocity(0, yStrength);
+				
+				boolean isFirst = true;
 			float xMid = 0;
 			float yMid = 0;
 			

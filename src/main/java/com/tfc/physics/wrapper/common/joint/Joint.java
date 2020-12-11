@@ -7,12 +7,18 @@ import java.util.Objects;
 public class Joint {
 	public final ICollider first;
 	public final ICollider second;
-	public float dampening = -1;
-	public float length = 20;
+	public final JointDescriptor descriptor;
 	
 	public Joint(ICollider first, ICollider second) {
 		this.first = first;
 		this.second = second;
+		descriptor = new JointDescriptor(JointType.DISTANCE);
+	}
+	
+	public Joint(ICollider first, ICollider second, JointDescriptor descriptor) {
+		this.first = first;
+		this.second = second;
+		this.descriptor = descriptor;
 	}
 	
 	@Override
@@ -20,13 +26,13 @@ public class Joint {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		Joint joint = (Joint) o;
-		return Float.compare(joint.dampening, dampening) == 0 &&
-				Objects.equals(first, joint.first) &&
-				Objects.equals(second, joint.second);
+		return Objects.equals(first, joint.first) &&
+				Objects.equals(second, joint.second) &&
+				Objects.equals(descriptor, joint.descriptor);
 	}
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(first, second, dampening);
+		return Objects.hash(first, second, descriptor);
 	}
 }
