@@ -25,4 +25,5 @@ public interface IPhysicsWorld {
 	void setPositionIterations(int pi);
 	
 	void useContinuousPhysics(boolean continuousPhysics);
+	void allowSleep(boolean allowSleep);
 }

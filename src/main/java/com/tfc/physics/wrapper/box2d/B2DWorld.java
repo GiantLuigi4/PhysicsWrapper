@@ -360,4 +360,9 @@ public class B2DWorld extends World implements IPhysicsWorld {
 	public void useContinuousPhysics(boolean continuousPhysics) {
 		super.setContinuousPhysics(continuousPhysics);
 	}
+	
+	@Override
+	public void allowSleep(boolean allowSleep) {
+		super.setAllowSleep(allowSleep);
+	}
 }

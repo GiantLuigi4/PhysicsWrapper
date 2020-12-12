@@ -82,4 +82,9 @@ public class WrapperWorld implements IPhysicsWorld {
 	public void useContinuousPhysics(boolean continuousPhysics) {
 		world.useContinuousPhysics(continuousPhysics);
 	}
+	
+	@Override
+	public void allowSleep(boolean allowSleep) {
+		world.allowSleep(allowSleep);
+	}
 }
