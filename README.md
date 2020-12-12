@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/GiantLuigi4/PhysicsWrapper.svg)](https://jitpack.io/#GiantLuigi4/PhysicsWrapper)
+
 # PhysicsWrapper
 
 <!--
