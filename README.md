@@ -1,3 +1,5 @@
 # PhysicsWrapper
 
-TODO write this out :egh:
+eah, yk what... I'll just do it...
+
+
