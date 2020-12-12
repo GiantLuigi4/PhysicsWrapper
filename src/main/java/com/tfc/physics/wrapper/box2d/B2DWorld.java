@@ -5,6 +5,7 @@ import com.tfc.physics.wrapper.common.backend.PositionSetter;
 import com.tfc.physics.wrapper.common.API.Vector2;
 import com.tfc.physics.wrapper.common.backend.Vec2Wrapper;
 import com.tfc.physics.wrapper.common.backend.collision.Collision;
+import com.tfc.physics.wrapper.common.backend.collision.CollisionPreSolve;
 import com.tfc.physics.wrapper.common.backend.collision.ContactEdge;
 import com.tfc.physics.wrapper.common.backend.collision.Manifold;
 import com.tfc.physics.wrapper.common.backend.interfaces.ICollider;
@@ -85,12 +86,51 @@ public class B2DWorld extends World implements IPhysicsWorld {
 			
 			@Override
 			public void preSolve(Contact contact, org.jbox2d.collision.Manifold oldManifold) {
-			
+				listeners.forEach((listener)->{
+					ICollider colliderA = getColliderFromBody(contact.m_nodeB.other);
+					ICollider colliderB = getColliderFromBody(contact.m_nodeA.other);
+					listener.preSolve(
+							new CollisionPreSolve(
+									new com.tfc.physics.wrapper.common.backend.collision.Manifold(
+											new ContactEdge(colliderB),
+											new ContactEdge(colliderA),
+											contact.getManifold().pointCount,
+											Vector2Creator.create(contact.getManifold().localNormal),
+											Vector2Creator.create(contact.getManifold().localPoint)
+									),
+									colliderA,
+									colliderB,
+									new com.tfc.physics.wrapper.common.backend.collision.Manifold(
+											new ContactEdge(colliderB),
+											new ContactEdge(colliderA),
+											oldManifold.pointCount,
+											Vector2Creator.create(oldManifold.localNormal),
+											Vector2Creator.create(oldManifold.localPoint)
+									)
+							)
+					);
+				});
 			}
 			
 			@Override
 			public void postSolve(Contact contact, ContactImpulse impulse) {
-			
+				listeners.forEach((listener)->{
+					ICollider colliderA = getColliderFromBody(contact.m_nodeB.other);
+					ICollider colliderB = getColliderFromBody(contact.m_nodeA.other);
+					listener.postSolve(
+							new Collision(
+									new com.tfc.physics.wrapper.common.backend.collision.Manifold(
+											new ContactEdge(colliderB),
+											new ContactEdge(colliderA),
+											contact.getManifold().pointCount,
+											Vector2Creator.create(contact.getManifold().localNormal),
+											Vector2Creator.create(contact.getManifold().localPoint)
+									),
+									colliderA,
+									colliderB
+							)
+					);
+				});
 			}
 		});
 	}
