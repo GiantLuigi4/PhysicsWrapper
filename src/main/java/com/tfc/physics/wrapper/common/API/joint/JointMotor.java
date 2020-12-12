@@ -1,4 +1,4 @@
-package com.tfc.physics.wrapper.common.joint;
+package com.tfc.physics.wrapper.common.API.joint;
 
 public class JointMotor {
 	public boolean isOn = false;

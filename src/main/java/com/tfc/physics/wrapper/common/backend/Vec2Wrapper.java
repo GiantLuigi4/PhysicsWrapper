@@ -1,6 +1,6 @@
 package com.tfc.physics.wrapper.common.backend;
 
-import com.tfc.physics.wrapper.common.Vector2;
+import com.tfc.physics.wrapper.common.API.Vector2;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;

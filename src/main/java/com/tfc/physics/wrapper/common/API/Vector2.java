@@ -1,4 +1,4 @@
-package com.tfc.physics.wrapper.common;
+package com.tfc.physics.wrapper.common.API;
 
 public class Vector2 {
 	public float x,y;

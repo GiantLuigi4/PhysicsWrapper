@@ -1,4 +1,4 @@
-package com.tfc.physics.wrapper.common.joint;
+package com.tfc.physics.wrapper.common.API.joint;
 
 //TODO: move all type specific fields out of this class and into their own classes
 public class JointDescriptor {

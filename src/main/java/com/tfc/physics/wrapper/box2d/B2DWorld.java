@@ -1,27 +1,37 @@
 package com.tfc.physics.wrapper.box2d;
 
+import com.tfc.physics.wrapper.box2d.backend.Vector2Creator;
 import com.tfc.physics.wrapper.common.backend.PositionSetter;
-import com.tfc.physics.wrapper.common.Vector2;
+import com.tfc.physics.wrapper.common.API.Vector2;
 import com.tfc.physics.wrapper.common.backend.Vec2Wrapper;
+import com.tfc.physics.wrapper.common.backend.collision.Collision;
+import com.tfc.physics.wrapper.common.backend.collision.ContactEdge;
+import com.tfc.physics.wrapper.common.backend.collision.Manifold;
 import com.tfc.physics.wrapper.common.backend.interfaces.ICollider;
-import com.tfc.physics.wrapper.common.colliders.BoxCollider;
+import com.tfc.physics.wrapper.common.API.colliders.BoxCollider;
 import com.tfc.physics.wrapper.common.backend.interfaces.IPhysicsWorld;
-import com.tfc.physics.wrapper.common.colliders.CircleCollider;
+import com.tfc.physics.wrapper.common.API.colliders.CircleCollider;
+import com.tfc.physics.wrapper.common.API.listeners.CollisionListener;
 import org.jbox2d.callbacks.ContactFilter;
+import org.jbox2d.callbacks.ContactImpulse;
 import org.jbox2d.callbacks.ContactListener;
 import org.jbox2d.callbacks.DestructionListener;
 import org.jbox2d.collision.shapes.PolygonShape;
 import org.jbox2d.common.Vec2;
 import org.jbox2d.dynamics.*;
+import org.jbox2d.dynamics.contacts.Contact;
 import org.jbox2d.dynamics.joints.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class B2DWorld extends World implements IPhysicsWorld {
 	public HashMap<ICollider, Body> colliders = new HashMap<>();
-	public HashMap<com.tfc.physics.wrapper.common.joint.Joint, Joint> joints = new HashMap<>();
+	public HashMap<com.tfc.physics.wrapper.common.API.joint.Joint, Joint> joints = new HashMap<>();
+	
+	public ArrayList<CollisionListener> listeners = new ArrayList<>();
 	
 	public B2DWorld(Vec2 gravity) {
 		super(gravity);
@@ -29,6 +39,60 @@ public class B2DWorld extends World implements IPhysicsWorld {
 		this.setSubStepping(false);
 		this.setContinuousPhysics(false);
 		setAllowSleep(true);
+		
+		setContactListener(new ContactListener() {
+			@Override
+			public void beginContact(Contact contact) {
+				listeners.forEach((listener)->{
+					ICollider colliderA = getColliderFromBody(contact.m_nodeB.other);
+					ICollider colliderB = getColliderFromBody(contact.m_nodeA.other);
+					listener.beginContact(
+							new Collision(
+									new com.tfc.physics.wrapper.common.backend.collision.Manifold(
+											new ContactEdge(colliderB),
+											new ContactEdge(colliderA),
+											contact.getManifold().pointCount,
+											Vector2Creator.create(contact.getManifold().localNormal),
+											Vector2Creator.create(contact.getManifold().localPoint)
+									),
+									colliderA,
+									colliderB
+							)
+					);
+				});
+			}
+			
+			@Override
+			public void endContact(Contact contact) {
+				listeners.forEach((listener)->{
+					ICollider colliderA = getColliderFromBody(contact.m_nodeB.other);
+					ICollider colliderB = getColliderFromBody(contact.m_nodeA.other);
+					listener.finishContact(
+							new Collision(
+									new com.tfc.physics.wrapper.common.backend.collision.Manifold(
+											new ContactEdge(colliderB),
+											new ContactEdge(colliderA),
+											contact.getManifold().pointCount,
+											Vector2Creator.create(contact.getManifold().localNormal),
+											Vector2Creator.create(contact.getManifold().localPoint)
+									),
+									colliderA,
+									colliderB
+							)
+					);
+				});
+			}
+			
+			@Override
+			public void preSolve(Contact contact, org.jbox2d.collision.Manifold oldManifold) {
+			
+			}
+			
+			@Override
+			public void postSolve(Contact contact, ContactImpulse impulse) {
+			
+			}
+		});
 	}
 	
 	@Override
@@ -128,11 +192,11 @@ public class B2DWorld extends World implements IPhysicsWorld {
 		
 		collider.setPositionSupplier(() -> new Vector2(body.getPosition().x, body.getPosition().y));
 		collider.setPositionSetter(new PositionSetter(
-				(newX) -> body.setTransform(new Vec2(newX.floatValue(),body.getPosition().y),body.getAngle()),
-				(newY) -> body.setTransform(new Vec2(body.getPosition().x, newY.floatValue()),body.getAngle())
+				(newX) -> body.setTransform(new Vec2(newX.floatValue(), body.getPosition().y), body.getAngle()),
+				(newY) -> body.setTransform(new Vec2(body.getPosition().x, newY.floatValue()), body.getAngle())
 		));
 		collider.setVelocityVal(new Vec2Wrapper(
-				() -> new Vector2(body.getLinearVelocity().x,body.getLinearVelocity().y),
+				() -> new Vector2(body.getLinearVelocity().x, body.getLinearVelocity().y),
 				(newX) -> body.setLinearVelocity(new Vec2(newX.floatValue(), body.getLinearVelocity().y)),
 				(newY) -> body.setLinearVelocity(new Vec2(body.getLinearVelocity().x, newY.floatValue()))
 		));
@@ -143,7 +207,7 @@ public class B2DWorld extends World implements IPhysicsWorld {
 		collider.setAngleGetter(() -> (double) body.getAngle());
 		collider.setAngleSetter((val) -> body.setTransform(body.getWorldCenter(), val.floatValue()));
 		
-		collider.setGravityScaleSetter((value)->body.setGravityScale(value.floatValue()));
+		collider.setGravityScaleSetter((value) -> body.setGravityScale(value.floatValue()));
 		
 		colliders.put(collider, body);
 	}
@@ -153,13 +217,17 @@ public class B2DWorld extends World implements IPhysicsWorld {
 		return colliders.keySet();
 	}
 	
+	int dt=1;
+	int vi=1;
+	int pi=8;
+	
 	@Override
 	public void tick() {
-		step(1, 1, 8);
+		step(dt, vi, pi);
 	}
 	
 	@Override
-	public void addJoint(com.tfc.physics.wrapper.common.joint.Joint joint) {
+	public void addJoint(com.tfc.physics.wrapper.common.API.joint.Joint joint) {
 		JointDef def;
 		switch (joint.descriptor.type) {
 			case DISTANCE:
@@ -193,6 +261,59 @@ public class B2DWorld extends World implements IPhysicsWorld {
 		
 		def.bodyA = colliders.get(joint.first);
 		def.bodyB = colliders.get(joint.second);
-		joints.put(joint,super.createJoint(def));
+		joints.put(joint, super.createJoint(def));
+	}
+	
+	@Override
+	public void removeCollider(ICollider collider) {
+		this.destroyBody(colliders.get(collider));
+		colliders.remove(collider);
+	}
+	
+	@Override
+	public void destroyJoint(com.tfc.physics.wrapper.common.API.joint.Joint joint) {
+		this.destroyJoint(joints.get(joint));
+		joints.remove(joint);
+	}
+	
+	@Override
+	public Collection<com.tfc.physics.wrapper.common.API.joint.Joint> getJoints() {
+		return joints.keySet();
+	}
+	
+	@Override
+	public CollisionListener addCollisionListener(CollisionListener listener) {
+		listeners.add(listener);
+		return listener;
+	}
+	
+	@Override
+	public void removeCollisionListener(CollisionListener listener) {
+		listeners.remove(listener);
+	}
+	
+	private ICollider getColliderFromBody(Body target) {
+		Collection<Body> bodies = colliders.values();
+		Iterator<ICollider> colliders = getColliders().iterator();
+		for (Body body : bodies) {
+			if (body.equals(target)) return colliders.next();
+			colliders.next();
+		}
+		return null;
+	}
+	
+	@Override
+	public void setDeltaTime(int dt) {
+		this.dt = dt;
+	}
+	
+	@Override
+	public void setVelocityIterations(int vi) {
+		this.vi = vi;
+	}
+	
+	@Override
+	public void setPositionIterations(int pi) {
+		this.pi = pi;
 	}
 }

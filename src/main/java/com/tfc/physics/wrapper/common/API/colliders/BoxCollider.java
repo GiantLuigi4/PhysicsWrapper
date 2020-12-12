@@ -1,4 +1,4 @@
-package com.tfc.physics.wrapper.common.colliders;
+package com.tfc.physics.wrapper.common.API.colliders;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;

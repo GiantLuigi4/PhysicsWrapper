@@ -1,9 +1,9 @@
 package com.tfc.physics.wrapper.common.backend.interfaces;
 
 import com.tfc.physics.wrapper.common.backend.PositionSetter;
-import com.tfc.physics.wrapper.common.Vector2;
+import com.tfc.physics.wrapper.common.API.Vector2;
 import com.tfc.physics.wrapper.common.backend.Vec2Wrapper;
-import com.tfc.physics.wrapper.common.joint.Joint;
+import com.tfc.physics.wrapper.common.API.joint.Joint;
 
 import java.awt.*;
 import java.util.ArrayList;

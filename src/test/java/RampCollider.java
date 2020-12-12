@@ -1,6 +1,6 @@
-import com.tfc.physics.wrapper.common.Vector2;
+import com.tfc.physics.wrapper.common.API.Vector2;
 import com.tfc.physics.wrapper.common.backend.interfaces.ICustomShapeCollider;
-import com.tfc.physics.wrapper.common.colliders.Collider;
+import com.tfc.physics.wrapper.common.API.colliders.Collider;
 
 import java.awt.*;
 import java.util.ArrayList;

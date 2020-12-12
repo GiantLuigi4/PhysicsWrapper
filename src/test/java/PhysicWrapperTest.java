@@ -1,11 +1,11 @@
 import com.tfc.physics.wrapper.Physics;
-import com.tfc.physics.wrapper.common.Vector2;
-import com.tfc.physics.wrapper.common.WrapperWorld;
+import com.tfc.physics.wrapper.common.API.Vector2;
+import com.tfc.physics.wrapper.common.API.WrapperWorld;
 import com.tfc.physics.wrapper.common.backend.interfaces.ICollider;
-import com.tfc.physics.wrapper.common.colliders.BoxCollider;
-import com.tfc.physics.wrapper.common.colliders.CircleCollider;
-import com.tfc.physics.wrapper.common.colliders.Collider;
-import com.tfc.physics.wrapper.common.joint.Joint;
+import com.tfc.physics.wrapper.common.API.colliders.BoxCollider;
+import com.tfc.physics.wrapper.common.API.colliders.CircleCollider;
+import com.tfc.physics.wrapper.common.API.colliders.Collider;
+import com.tfc.physics.wrapper.common.API.joint.Joint;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +13,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
-import java.util.Random;
 
 public class PhysicWrapperTest extends JComponent implements KeyListener {
 	WrapperWorld world;
