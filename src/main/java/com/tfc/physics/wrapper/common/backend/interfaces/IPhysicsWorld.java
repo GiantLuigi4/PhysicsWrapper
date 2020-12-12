@@ -23,4 +23,6 @@ public interface IPhysicsWorld {
 	void setDeltaTime(int dt);
 	void setVelocityIterations(int vi);
 	void setPositionIterations(int pi);
+	
+	void useContinuousPhysics(boolean continuousPhysics);
 }

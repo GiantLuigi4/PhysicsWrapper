@@ -7,7 +7,6 @@ import com.tfc.physics.wrapper.common.backend.Vec2Wrapper;
 import com.tfc.physics.wrapper.common.backend.collision.Collision;
 import com.tfc.physics.wrapper.common.backend.collision.CollisionPreSolve;
 import com.tfc.physics.wrapper.common.backend.collision.ContactEdge;
-import com.tfc.physics.wrapper.common.backend.collision.Manifold;
 import com.tfc.physics.wrapper.common.backend.interfaces.ICollider;
 import com.tfc.physics.wrapper.common.API.colliders.BoxCollider;
 import com.tfc.physics.wrapper.common.backend.interfaces.IPhysicsWorld;
@@ -355,5 +354,10 @@ public class B2DWorld extends World implements IPhysicsWorld {
 	@Override
 	public void setPositionIterations(int pi) {
 		this.pi = pi;
+	}
+	
+	@Override
+	public void useContinuousPhysics(boolean continuousPhysics) {
+		super.setContinuousPhysics(continuousPhysics);
 	}
 }

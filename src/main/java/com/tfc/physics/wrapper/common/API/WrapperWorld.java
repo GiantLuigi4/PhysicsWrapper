@@ -77,4 +77,9 @@ public class WrapperWorld implements IPhysicsWorld {
 	public void setPositionIterations(int pi) {
 		world.setPositionIterations(pi);
 	}
+	
+	@Override
+	public void useContinuousPhysics(boolean continuousPhysics) {
+		world.useContinuousPhysics(continuousPhysics);
+	}
 }
